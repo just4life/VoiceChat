@@ -2,18 +2,21 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { resolveSessionUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { roleBadge } from "@/lib/roles";
 
 export default async function LobbyPage() {
   const user = await resolveSessionUser();
   if (!user) redirect("/");
 
-  const rooms = await prisma.room.findMany({
-    include: {
-      members: { include: { user: true } }
-    },
-    orderBy: { createdAt: "asc" }
-  });
-  const users = await prisma.user.findMany({ orderBy: { nickname: "asc" } });
+  const [rooms, users] = await Promise.all([
+    prisma.room.findMany({
+      include: {
+        members: { include: { user: true } }
+      },
+      orderBy: { createdAt: "asc" }
+    }),
+    prisma.user.findMany({ orderBy: { nickname: "asc" } })
+  ]);
 
   return (
     <main className="p-6 grid gap-4 md:grid-cols-[300px_1fr_300px]">
@@ -38,7 +41,7 @@ export default async function LobbyPage() {
         <ul className="space-y-2 text-sm">
           {users.map((online) => (
             <li key={online.id} className="rounded bg-zinc-800 p-2">
-              {online.nickname} {online.role === "ADMIN" ? "👑" : online.role === "MODERATOR" ? "🛡️" : "•"}
+              {online.nickname} {roleBadge(online.role)}
             </li>
           ))}
         </ul>
