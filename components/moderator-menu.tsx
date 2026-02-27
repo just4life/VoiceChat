@@ -1,12 +1,12 @@
 "use client";
 
-import { Role } from "@prisma/client";
+import { AppRole } from "@/lib/roles";
 
 type Props = {
   canModerate: boolean;
   targetUserId: number;
   roomId: number;
-  role: Role;
+  role: AppRole;
 };
 
 export function ModeratorMenu({ canModerate, targetUserId, roomId, role }: Props) {

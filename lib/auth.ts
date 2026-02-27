@@ -4,8 +4,9 @@ import { randomUUID } from "node:crypto";
 import { adminGuids } from "@/lib/config";
 import { prisma } from "@/lib/prisma";
 
-function resolveRoleByGuid(guid: string) {
-  return adminGuids.includes(guid) ? Role.ADMIN : Role.USER;
+function ensureAdminRole(guid: string, currentRole: Role) {
+  if (adminGuids.includes(guid)) return Role.ADMIN;
+  return currentRole;
 }
 
 export async function resolveSessionUser() {
@@ -35,14 +36,21 @@ export async function createOrAttachUser(nickname: string) {
     if (existing) {
       return prisma.user.update({
         where: { id: existing.id },
-        data: { nickname, role: resolveRoleByGuid(existing.guid) }
+        data: {
+          nickname,
+          role: ensureAdminRole(existing.guid, existing.role)
+        }
       });
     }
   }
 
   const guid = randomUUID();
   const user = await prisma.user.create({
-    data: { guid, nickname, role: resolveRoleByGuid(guid) }
+    data: {
+      guid,
+      nickname,
+      role: adminGuids.includes(guid) ? Role.ADMIN : Role.USER
+    }
   });
 
   cookieStore.set("voice_guid", guid, {

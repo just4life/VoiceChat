@@ -1,12 +1,12 @@
 import { createServer } from "node:http";
-import { WebSocketServer, type RawData, type WebSocket } from "ws";
+import { WebSocketServer } from "ws";
 
 const port = Number(process.env.WS_PORT ?? 3001);
 const httpServer = createServer();
 const wss = new WebSocketServer({ server: httpServer });
 
-wss.on("connection", (socket: WebSocket) => {
-  socket.on("message", (raw: RawData) => {
+wss.on("connection", (socket) => {
+  socket.on("message", (raw) => {
     const payload = raw.toString();
 
     for (const client of wss.clients) {
