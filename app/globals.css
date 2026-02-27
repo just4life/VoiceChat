@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-zinc-950 text-zinc-100 min-h-screen;
+}
+
+.panel {
+  @apply rounded-2xl border border-zinc-800 bg-zinc-900/80 backdrop-blur;
+}
